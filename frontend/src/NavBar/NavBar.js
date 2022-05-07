@@ -19,6 +19,7 @@ export default class NavBar extends React.Component {
                 <NavigationLink name="Home" url="/home"></NavigationLink>
                 <NavigationLink name="Graphics Playground" url="/graphics_playground"></NavigationLink>
                 <NavigationLink name="Graphics Playground 2" url="/graphics_playground_2"></NavigationLink>
+                <NavigationLink name="Graphics Playground 3" url="/graphics_playground_3"></NavigationLink>
             </div>
         );
     }
