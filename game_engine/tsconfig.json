@@ -1,15 +1,17 @@
 {
     "compilerOptions": {
         "lib": [
-            "es2015"
+            "es2015", "dom"
         ],
         "module": "commonjs",
         "outDir": "dist",
         "sourceMap": true,
         "strict": true,
-        "target": "es2015"
+        "target": "es2015",
+        "types": ["node", "jest"]
     },
     "include": [
-        "src"
+        "src",
+        "tests"
     ]
 }

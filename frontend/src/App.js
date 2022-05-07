@@ -1,23 +1,29 @@
-import logo from './logo.svg';
 import './App.css';
+import { Routes, Route, Navigate } from "react-router-dom";
+import NavBar from "./NavBar/NavBar";
+import Home from "./Home/Home";
+import GraphicsPlayground from "./GraphicsPlayground/GraphicsPlayground";
+import GraphicsPlayground2 from './GraphicsPlayground2/GraphicsPlayground2';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="site-title-box">
+        <h1>Physics Game Engine Demo</h1>
+      </div>
+      <div className="horizontal-container">
+        <NavBar />
+        <div id="main_page">
+          <Routes>
+            <Route path="/home" element={<Home />}></Route>
+            <Route path="/graphics_playground" element={<GraphicsPlayground />}></Route>
+            <Route path="/graphics_playground_2" element={<GraphicsPlayground2 />}></Route>
+
+            <Route path="/" element={<Navigate to="/home" />}></Route>
+            <Route path="/*" element={<p>Page not found.</p>}></Route>
+          </Routes>
+        </div>
+      </div>
     </div>
   );
 }
