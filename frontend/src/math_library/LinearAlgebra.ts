@@ -1,5 +1,5 @@
-import Matrix4 from "./Matrix4";
-import Vector3 from "./Vector3";
+import Matrix4 from "./Matrix4.ts";
+import Vector3 from "./Vector3.ts";
 
 /**
  * Returns product of two Matrix4's.

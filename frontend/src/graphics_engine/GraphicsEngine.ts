@@ -1,5 +1,6 @@
-import Matrix4 from "../math_library/Matrix4";
-import * as LinearAlgebra from "../math_library/LinearAlgebra";
+import Matrix4 from "../math_library/Matrix4.ts";
+import Vector3 from "../math_library/Vector3.ts";
+import * as LinearAlgebra from "../math_library/LinearAlgebra.ts";
 
 const VERTEX_SHADER_SOURCE =
 `#version 300 es
@@ -11,7 +12,7 @@ uniform mat4 u_matrix;
 
 void main() {
     // Multiply the position by the matrix.
-    gl_Position = u_matrix * a_position;
+    gl_Position = a_position;
 }
 `;
 
@@ -19,24 +20,12 @@ const FRAGMENT_SHADER_SOURCE =
 `#version 300 es
 
 precision highp float;
-uniform vec4 u_color;
+// uniform vec4 u_color;
 
 out vec4 outColor;
-void main() {
-    outColor = u_color;
-}
-`;
 
-// shaders for testing
-const VERTEX_SHADER_2_SOURCE =
-`#version 300 es
-
-// an attribute is an input(in) to a vertex shader.
-// It will receive data from a buffer.
-in vec4 a_position;
 void main() {
-    gl_Position = a_position;
-    gl_PointSize = 10.0;
+    outColor = vec4(1, 0, 0.5, 1);
 }
 `;
 
@@ -57,11 +46,21 @@ export class GraphicsEngine {
 
         // look up where the attribute and uniform locations
         let positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-        let colorAttributeLocation = gl.getUniformLocation(program, "u_color");
-        let matrixUniformLocation = gl.getUniformLocation(program, "u_matrix");
+        // let colorAttributeLocation = gl.getUniformLocation(program, "u_color");
+        // let matrixUniformLocation = gl.getUniformLocation(program, "u_matrix");
 
         // Create a buffer
         let positionBuffer = gl.createBuffer();
+
+        // Bind it to ARRAY_BUFFER (this of it as ARRAY_BUFFER = positionBuffer)
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+        let positions = [
+            0, 0, 0,
+            0, 0.5, 0,
+            1, 1, 0
+        ];
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
         // create a vertex array object (attribute state) and make it the one we're currently working with
         let vao = gl.createVertexArray();
@@ -70,12 +69,14 @@ export class GraphicsEngine {
         // Turn on the attribute
         gl.enableVertexAttribArray(positionAttributeLocation);
 
-        // Bind it to ARRAY_BUFFER (this of it as ARRAY_BUFFER = positionBuffer)
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
         // Fill the current ARRAY_BUFFER buffer
         // with the values that define a letter 'F'.
-        setGeometry(gl);
+        // setGeometry(gl);
+
+        // Fill array with vertices of a triangle
+        // setTriangle(gl, 0, 0, 0, 150, 200, 200);
+
+        
 
         // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
         let size = 3;           // 3 components per iteration
@@ -86,23 +87,19 @@ export class GraphicsEngine {
         gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
 
         // Create the color buffer, make it the current ARRAY_BUFFER and copy in the color values
-        let colorBuffer = gl.createBuffer();
+        /*let colorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        setColors(gl);
+        setColors(gl);*/
 
         // Turn on the attribute
-        gl.enableVertexAttribArray(colorAttributeLocation);
+        // gl.enableVertexAttribArray(colorAttributeLocation);
 
         // Tell the attribute how to get data out of colorBuffer (ARRAY_BUFFER)
-        gl.vertexAttribPointer(colorAttributeLocation, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+        // gl.vertexAttribPointer(colorAttributeLocation, 3, gl.UNSIGNED_BYTE, true, 0, 0);
 
         function degToRad(degrees: number) {
             return degrees * Math.PI / 180;
         }
-
-        let translations = [500, 200, 0];
-        let rotation = [degToRad(40), degToRad(25), degToRad(325)];
-        let scale = [1, 1, 1];
 
         // Draw the scene.
         
@@ -110,21 +107,30 @@ export class GraphicsEngine {
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
         // Clear the canvas
-        gl.clearColor(0, 0, 0, 1);
-        gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
+        gl.clearColor(0, 0, 0, 0.5);
+        gl.clear(gl.COLOR_BUFFER_BIT);
 
         // Compute the matrix
-        let projectionMatrix = projection(gl.canvas.clientWidth, gl.canvas.clientHeight, 400);
-        let translationMatrix = translation(translations[0], translations[1], translations[2]);
-        let matrix = multiply(projectionMatrix, translationMatrix);
+        let orthographicProjectionMatrix4 = LinearAlgebra.orthographicProjectionMatrix4(-200, 200, -200, 200, -200, 200);
+
+        const v1 = new Vector3(0, 0, 0);
+        const v2 = new Vector3(0, 150, 0);
+        const v3 = new Vector3(200, 200, 0);
+
+        console.log("projected v1", LinearAlgebra.multiplyMatrix4AndVector3(orthographicProjectionMatrix4, v1));
+        console.log("projected v2", LinearAlgebra.multiplyMatrix4AndVector3(orthographicProjectionMatrix4, v2));
+        console.log("projected v3", LinearAlgebra.multiplyMatrix4AndVector3(orthographicProjectionMatrix4, v3));
+        console.log("position buffer", positionBuffer);
+
+        const matrix = orthographicProjectionMatrix4.getElements();
 
         // Set the matrix
-        gl.uniformMatrix4fv(matrixUniformLocation, false, matrix);
+        // gl.uniformMatrix4fv(matrixUniformLocation, false, matrix);
 
-        // Draw the geometry.
+        // draw
         let primitiveType = gl.TRIANGLES;
         offset = 0;
-        let count = 16 * 6;
+        let count = 3;
         gl.drawArrays(primitiveType, offset, count);
 
         console.log("clientWidth", gl.canvas.clientWidth);
@@ -164,6 +170,28 @@ export class GraphicsEngine {
             gl.drawArrays(gl.POINTS, 0, 1);
         }
     }
+}
+
+/**
+ * Fill the current ARRAY_BUFFER with vertices of a triangle based on input.
+ * 
+ * @param x1 
+ * @param y1 
+ * @param x2 
+ * @param y2 
+ * @param x3 
+ * @param y3 
+ */
+function setTriangle(gl: WebGL2RenderingContext, x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): void {
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array([
+            x1, y1, 0,
+            x2, y2, 0,
+            x3, y3, 0
+        ]),
+        gl.STATIC_DRAW
+    );
 }
 
 /**
