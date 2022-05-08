@@ -1,18 +1,21 @@
-import { Vector3 } from "./math_library/Vector3";
+import Vector3 from "./math_library/Vector3";
+import Matrix4 from "./math_library/Matrix4";
+import * as LinearAlgebra from "./math_library/LinearAlgebra";
 
-let v = new Vector3(1, 1, 3);
+const matrix = LinearAlgebra.orthographicProjectionMatrix4(-20, 20, -20, 20, -20, 20);
 
-console.log(v.x);
-console.log(v.y);
-console.log(v.z);
+let testVectors = [];
 
-console.log("magnitude", v.magnitude());
-console.log("squared magnitude", v.squaredMagnitude());
+for (let i = 0; i < 5; i++) {
+    for (let j = 0; j < 5; j++) {
+        for (let k = 0; k < 5; k++) {
+            testVectors.push(new Vector3(i * 10 - 20, j * 10 - 20, k * 10 - 20));
+        }
+    }
+}
 
-v.normalize();
-console.log("normalized magnitude", v.magnitude());
-console.log("new x", v.x);
-console.log("new y", v.y);
-console.log("new z", v.z);
+console.log(matrix);
 
-console.log("toString", v);
+for (let i = 0; i < testVectors.length; i++) {
+    console.log("testVector:", testVectors[i], " projected to: ", LinearAlgebra.multiplyMatrix4AndVector3(matrix, testVectors[i]));
+}

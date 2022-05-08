@@ -1,4 +1,5 @@
-import { translation, xRotation, yRotation, zRotation, projection, multiply } from "../math_library/Matrix4.ts";
+import Matrix4 from "../math_library/Matrix4";
+import * as LinearAlgebra from "../math_library/LinearAlgebra";
 
 const VERTEX_SHADER_SOURCE =
 `#version 300 es

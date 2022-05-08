@@ -1,6 +1,6 @@
 // 3D Vector with support operations
 // invariant: vector must have non-negative magnitude (|v| >= 0)
-export class Vector3 {
+export default class Vector3 {
     constructor(public x: number, public y: number, public z: number) {}
 
     // returns the magnitude of this vector
@@ -66,11 +66,6 @@ export class Vector3 {
     // returns scalar product of a scalar and a vector
     static scalarProduct(s: number, v: Vector3): Vector3 {
         return new Vector3(s * v.x, s * v.y, s * v.z);
-    }
-
-    // returns the dot product of two vectors
-    static dotProduct(v1: Vector3, v2: Vector3): number {
-        return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
     }
 
     // returns the cross product of two vectors
